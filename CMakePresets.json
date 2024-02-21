@@ -1,0 +1,61 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 23,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "gcc",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_SYSTEM_NAME": "Generic-ELF",
+                "CMAKE_SYSTEM_PROCESSOR": "arm",
+                "CMAKE_C_COMPILER": "armclang",
+                "CMAKE_CXX_COMPILER": "armclang",
+                "CMAKE_ASM_COMPILER": "armclang",
+                "CMAKE_C_COMPILER_WORKS": true,
+                "CMAKE_CXX_COMPILER_WORKS": true,
+                "CMAKE_ASM_COMPILER_WORKS": true
+            }
+        },
+        {
+            "name": "gd32f4xx",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_C_FLAGS": "-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c -fno-rtti -funsigned-char -fshort-enums -fshort-wchar -gdwarf-4 -ffunction-sections -MD",
+                "CMAKE_CXX_FLAGS": "-xc++ -std=c++17 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c  -fno-rtti -funsigned-char -fshort-enums -fshort-wchar -fno-exceptions -gdwarf-4 -O0 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier",
+                "CMAKE_ASM_FLAGS": "--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c  -gdwarf-4"
+            }
+        },
+        {
+            "name": "gd32f470",
+            "hidden": true,
+            "inherits": [
+                "gcc",
+                "gd32f4xx"
+            ],
+            "cacheVariables": {
+                "COMPILER_DEFINES": "-DGD32F470"
+            }
+        },
+        {
+            "name": "gd32f470-debug",
+            "displayName": "GD32F470 Debug",
+            "inherits": "gd32f470",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "gd32f470-debug",
+            "displayName": "GD32F470 Debug",
+            "configurePreset": "gd32f470-debug"
+        }
+    ]
+}
