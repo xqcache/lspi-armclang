@@ -15,8 +15,6 @@ target_compile_definitions(${TARGET_NAME} PRIVATE
 
 )
 target_link_options(${TARGET_NAME} PRIVATE
-    --cpu=Cortex-M4.fp.sp --strict --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
-    --info=sizes,totals,unused,veneers
     --list=${CMAKE_BINARY_DIR}/${TARGET_NAME}.map
 )
 

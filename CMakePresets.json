@@ -25,10 +25,17 @@
         {
             "name": "gd32f4xx",
             "hidden": true,
+            "environment": {
+                "COMMON_LINKER_FLAGS": "--cpu=Cortex-M4.fp.sp --strict --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols --info=sizes,totals,unused,veneers",
+                "COMMON_COMPILER_FLAGS": "--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c -fno-rtti -funsigned-char -fshort-enums -fshort-wchar -gdwarf-4 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -MD"
+            },
             "cacheVariables": {
-                "CMAKE_C_FLAGS": "-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c -fno-rtti -funsigned-char -fshort-enums -fshort-wchar -gdwarf-4 -ffunction-sections -MD",
-                "CMAKE_CXX_FLAGS": "-xc++ -std=c++17 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c  -fno-rtti -funsigned-char -fshort-enums -fshort-wchar -fno-exceptions -gdwarf-4 -O0 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier",
-                "CMAKE_ASM_FLAGS": "--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c  -gdwarf-4"
+                "CMAKE_C_FLAGS": "-xc -std=c11 $env{COMMON_COMPILER_FLAGS}",
+                "CMAKE_CXX_FLAGS": "-xc++ -std=c++17 -fno-exceptions $env{COMMON_COMPILER_FLAGS}",
+                "CMAKE_ASM_FLAGS": "--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -masm=auto -Wa,armasm,--diag_suppress=A1950W -c  -gdwarf-4",
+                "CMAKE_EXE_LINKER_FLAGS": "$env{COMMON_LINKER_FLAGS}",
+                "CMAKE_STATIC_LINKER_FLAGS": "$env{COMMON_LINKER_FLAGS}",
+                "CMAKE_SHARED_LINKER_FLAGS": "$env{COMMON_LINKER_FLAGS}"
             }
         },
         {
@@ -49,6 +56,14 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
+        },
+        {
+            "name": "gd32f470-release",
+            "displayName": "GD32F470 Release",
+            "inherits": "gd32f470",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         }
     ],
     "buildPresets": [
@@ -56,6 +71,11 @@
             "name": "gd32f470-debug",
             "displayName": "GD32F470 Debug",
             "configurePreset": "gd32f470-debug"
+        },
+        {
+            "name": "gd32f470-release",
+            "displayName": "GD32F470 Release",
+            "configurePreset": "gd32f470-release"
         }
     ]
 }
