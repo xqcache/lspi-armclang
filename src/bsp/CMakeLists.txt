@@ -7,6 +7,8 @@ set(PRIVATE_SOURCES
     bsp_serial.cpp
     bsp_i2c.h
     bsp_i2c.cpp
+    bsp_mpu6050.h
+    bsp_mpu6050.cpp
 )
 
 target_sources(${TARGET_NAME} PRIVATE ${PRIVATE_SOURCES})
