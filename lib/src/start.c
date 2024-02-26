@@ -1,22 +1,13 @@
 // 参考startup_gd32f450_470.s实现，其他cortex-mx系列的启动文件应该都类似，稍微修改下__isr_vectors就可以移植到stm32或者gd32等各系列芯片上
 
+#include "gd32f4xx.h"
 #include <stdint.h>
 #include <string.h>
 
-#define STACK_SIZE 0x00000800
-// 堆空间不能太小，太小的话无法定义过大的buffer
-#define HEAP_SIZE 0x00000800
-
-extern void __main(void);
 extern void SystemInit(void);
 void Reset_Handler(void);
 void Null_Handler(void);
 void Loop_Handler(void);
-
-// armlink连接时会加一些私货插入一些看不到源码的.o文件，这些.o文件里面引用了__heap_base，__heap_limit，__initial_sp
-uint8_t __heap_base[HEAP_SIZE] __attribute__((used, section(".heap"), aligned(8)));
-uint8_t* __heap_limit = __heap_base + sizeof(__heap_base);
-uint8_t __initial_sp[STACK_SIZE] __attribute__((used, section(".stack"), aligned(8)));
 
 void __attribute__((weak, alias("Loop_Handler"))) NMI_Handler(void); //  NMI Handler
 void __attribute__((weak, alias("Loop_Handler"))) HardFault_Handler(void); //  Hard Fault Handler
@@ -119,8 +110,69 @@ void __attribute__((weak, alias("Null_Handler"))) TLI_IRQHandler(void); //  104:
 void __attribute__((weak, alias("Null_Handler"))) TLI_ER_IRQHandler(void); //  105:TLI Error
 void __attribute__((weak, alias("Null_Handler"))) IPA_IRQHandler(void); //  106:IPA
 
+extern uint32_t Image$$STACK$$Base;
+
+extern uint32_t Load$$LR$$LR_IROM1$$Base;
+extern uint32_t Load$$LR$$LR_IROM1$$Limit;
+extern uint32_t Load$$LR$$LR_IROM1$$Length;
+
+extern uint32_t Image$$ER_IROM1$$Base;
+extern uint32_t Image$$ER_IROM1$$Length;
+extern uint32_t Image$$ER_IROM1$$Limit;
+
+extern uint32_t Image$$RW_IRAM1$$Base;
+extern uint32_t Image$$RW_IRAM1$$Limit;
+extern uint32_t Image$$RW_IRAM1$$Length;
+
+extern int main();
+__attribute__((noinline)) void __start()
+{
+    volatile uint32_t load_length = (uint32_t)&Load$$LR$$LR_IROM1$$Length - (uint32_t)&Image$$ER_IROM1$$Length;
+    volatile uint32_t rom_base = (uint32_t)&Image$$ER_IROM1$$Base;
+    volatile uint32_t rom_length = (uint32_t)&Image$$ER_IROM1$$Length;
+    volatile uint32_t rom_limit = (uint32_t)&Image$$ER_IROM1$$Limit;
+
+    volatile uint32_t ram_base = (uint32_t)&Image$$RW_IRAM1$$Base;
+    volatile uint32_t ram_length = (uint32_t)&Image$$RW_IRAM1$$Length;
+    volatile uint32_t ram_limit = (uint32_t)&Image$$RW_IRAM1$$Limit;
+
+    volatile uint32_t lr_base = (uint32_t)&Load$$LR$$LR_IROM1$$Base;
+    volatile uint32_t lr_length = (uint32_t)&Load$$LR$$LR_IROM1$$Length;
+    volatile uint32_t lr_limit = (uint32_t)&Load$$LR$$LR_IROM1$$Limit;
+
+    if (load_length > (uint32_t)&Image$$RW_IRAM1$$Limit - (uint32_t)&Image$$RW_IRAM1$$Base) {
+        HardFault_Handler();
+    }
+
+    // 将ROM中存放的全局/静态变量初始值到RAM中。（gnu编译器一般将这部分数据放在.data段，未初始化的变量放在.bss段）
+    volatile uint8_t *src, *dst;
+    src = (uint8_t*)rom_limit;
+    dst = (uint8_t*)ram_base;
+
+    // 将rom中保存的全局/静态变量初值拷贝至data中。
+    for (uint32_t i = 0; i < load_length; ++i) {
+        *dst++ = *src++;
+    }
+    main();
+}
+
+__attribute__((noinline)) void Reset_Handler(void)
+{
+    SystemInit();
+    __start();
+}
+
+void Null_Handler(void)
+{
+}
+
+void Loop_Handler(void)
+{
+    while (1) { }
+}
+
 const uint32_t __isr_vectors[] __attribute__((used, section(".isr_vectors"))) = {
-    (uint32_t)__initial_sp,
+    (uint32_t)(&Image$$STACK$$Base),
     (uint32_t)Reset_Handler, //  Reset Handler
     (uint32_t)NMI_Handler, //  NMI Handler
     (uint32_t)HardFault_Handler, //  Hard Fault Handler
@@ -230,26 +282,3 @@ const uint32_t __isr_vectors[] __attribute__((used, section(".isr_vectors"))) = 
     (uint32_t)TLI_ER_IRQHandler, //  105:TLI Error
     (uint32_t)IPA_IRQHandler, //  106:IPA
 };
-
-/// @brief armlink链接器夹杂的私活中会回调这个函数来初始化我们自定义的堆和栈
-void __user_initial_stackheap()
-{
-    memset(__heap_base, 0, sizeof(__heap_base));
-    memset(__initial_sp, 0, sizeof(__initial_sp));
-}
-
-void Reset_Handler(void)
-{
-    SystemInit();
-    // 这里调用armlink自己实现的__main函数，__main函数在完成堆栈初始化后就会调用我们自己编写的main函数
-    __main();
-}
-
-void Null_Handler(void)
-{
-}
-
-void Loop_Handler(void)
-{
-    while (1) { }
-}

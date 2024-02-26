@@ -30,4 +30,5 @@ add_subdirectory(src)
 
 add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
     COMMAND fromelf $<TARGET_FILE:${TARGET_NAME}> --i32 --output=$<TARGET_FILE_DIR:${TARGET_NAME}>/$<TARGET_FILE_BASE_NAME:${TARGET_NAME}>.hex
+    COMMAND fromelf $<TARGET_FILE:${TARGET_NAME}> --bin --output=$<TARGET_FILE_DIR:${TARGET_NAME}>/$<TARGET_FILE_BASE_NAME:${TARGET_NAME}>.bin
 )

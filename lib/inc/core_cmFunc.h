@@ -25,6 +25,8 @@
 #ifndef __CORE_CMFUNC_H
 #define __CORE_CMFUNC_H
 
+#include <stdint.h>
+
 
 /* ###########################  Core Function Access  ########################### */
 /** \ingroup  CMSIS_Core_FunctionInterface

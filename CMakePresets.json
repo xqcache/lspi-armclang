@@ -26,8 +26,8 @@
             "name": "gd32f4xx",
             "hidden": true,
             "environment": {
-                "COMMON_LINKER_FLAGS": "--cpu=Cortex-M4.fp.sp --strict --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols --info=sizes,totals,unused,veneers",
-                "COMMON_COMPILER_FLAGS": "--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c -fno-rtti -funsigned-char -fshort-enums -fshort-wchar -gdwarf-4 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -MD"
+                "COMMON_LINKER_FLAGS": "--cpu=Cortex-M4.fp.sp --strict --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols --info=sizes,totals,unused,veneers --datacompressor=off --verbose",
+                "COMMON_COMPILER_FLAGS": "--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c -fno-rtti -funsigned-char -fshort-enums -fshort-wchar -gdwarf-4 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -MD -fno-builtin"
             },
             "cacheVariables": {
                 "CMAKE_C_FLAGS": "-xc -std=c11 $env{COMMON_COMPILER_FLAGS}",
