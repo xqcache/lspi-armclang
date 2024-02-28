@@ -12,9 +12,11 @@ add_executable(${TARGET_NAME})
 target_compile_definitions(${TARGET_NAME} PRIVATE 
     $<$<COMPILE_LANGUAGE:CXX>:${COMPILER_DEFINES}>
     $<$<COMPILE_LANGUAGE:C>:${COMPILER_DEFINES}>
+    -D__MICROLIB
 
 )
 target_link_options(${TARGET_NAME} PRIVATE
+    --library_type=microlib
     --list=${CMAKE_BINARY_DIR}/${TARGET_NAME}.map
 )
 

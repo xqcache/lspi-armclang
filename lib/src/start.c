@@ -110,8 +110,6 @@ void __attribute__((weak, alias("Null_Handler"))) TLI_IRQHandler(void); //  104:
 void __attribute__((weak, alias("Null_Handler"))) TLI_ER_IRQHandler(void); //  105:TLI Error
 void __attribute__((weak, alias("Null_Handler"))) IPA_IRQHandler(void); //  106:IPA
 
-extern uint32_t Image$$STACK$$Base;
-
 extern uint32_t Load$$LR$$LR_IROM1$$Base;
 extern uint32_t Load$$LR$$LR_IROM1$$Limit;
 extern uint32_t Load$$LR$$LR_IROM1$$Length;
@@ -124,10 +122,15 @@ extern uint32_t Image$$RW_IRAM1$$Base;
 extern uint32_t Image$$RW_IRAM1$$Limit;
 extern uint32_t Image$$RW_IRAM1$$Length;
 
+extern uint32_t Image$$STACK$$Base;
+extern uint32_t Image$$STACK$$Length;
+
+__attribute__((section(".stack"))) uint32_t __initial_sp;
+
 extern int main();
 __attribute__((noinline)) void __start()
 {
-    volatile uint32_t load_length = (uint32_t)&Load$$LR$$LR_IROM1$$Length - (uint32_t)&Image$$ER_IROM1$$Length;
+    volatile uint32_t load_length = (uint32_t)&Load$$LR$$LR_IROM1$$Length - (uint32_t)&Image$$ER_IROM1$$Length - (uint32_t)&Image$$STACK$$Length;
     volatile uint32_t rom_base = (uint32_t)&Image$$ER_IROM1$$Base;
     volatile uint32_t rom_length = (uint32_t)&Image$$ER_IROM1$$Length;
     volatile uint32_t rom_limit = (uint32_t)&Image$$ER_IROM1$$Limit;
@@ -172,7 +175,7 @@ void Loop_Handler(void)
 }
 
 const uint32_t __isr_vectors[] __attribute__((used, section(".isr_vectors"))) = {
-    (uint32_t)(&Image$$STACK$$Base),
+    (uint32_t)(&__initial_sp),
     (uint32_t)Reset_Handler, //  Reset Handler
     (uint32_t)NMI_Handler, //  NMI Handler
     (uint32_t)HardFault_Handler, //  Hard Fault Handler

@@ -16,7 +16,9 @@ LR_IROM1 0x08000000 0x00100000  {    ; load region size_region
   }
 
   ; 栈空间
-  STACK 0x2006F800 EMPTY -0x800 {}
+  STACK 0x2006F800 -0x800 {
+    *.o (.stack)
+  }
   ; 堆空间
   HEAP +0 EMPTY 0x800 {}
 }
