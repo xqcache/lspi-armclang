@@ -110,59 +110,34 @@ void __attribute__((weak, alias("Null_Handler"))) TLI_IRQHandler(void); //  104:
 void __attribute__((weak, alias("Null_Handler"))) TLI_ER_IRQHandler(void); //  105:TLI Error
 void __attribute__((weak, alias("Null_Handler"))) IPA_IRQHandler(void); //  106:IPA
 
-extern uint32_t Load$$LR$$LR_IROM1$$Base;
-extern uint32_t Load$$LR$$LR_IROM1$$Limit;
-extern uint32_t Load$$LR$$LR_IROM1$$Length;
+extern uint32_t __initial_sp;
+extern uint32_t __heap_base;
+extern uint32_t __heap_limit;
 
-extern uint32_t Image$$ER_IROM1$$Base;
-extern uint32_t Image$$ER_IROM1$$Length;
-extern uint32_t Image$$ER_IROM1$$Limit;
-
-extern uint32_t Image$$RW_IRAM1$$Base;
-extern uint32_t Image$$RW_IRAM1$$Limit;
-extern uint32_t Image$$RW_IRAM1$$Length;
-
-extern uint32_t Image$$STACK$$Base;
-extern uint32_t Image$$STACK$$Length;
-
-__attribute__((section(".stack"))) uint32_t __initial_sp;
-
-extern int main();
-__attribute__((noinline)) void __start()
+__attribute__((used)) unsigned __user_heap_extend(int var0, void** base, unsigned requested_size)
 {
-    volatile uint32_t load_length = (uint32_t)&Load$$LR$$LR_IROM1$$Length - (uint32_t)&Image$$ER_IROM1$$Length - (uint32_t)&Image$$STACK$$Length;
-    volatile uint32_t rom_base = (uint32_t)&Image$$ER_IROM1$$Base;
-    volatile uint32_t rom_length = (uint32_t)&Image$$ER_IROM1$$Length;
-    volatile uint32_t rom_limit = (uint32_t)&Image$$ER_IROM1$$Limit;
-
-    volatile uint32_t ram_base = (uint32_t)&Image$$RW_IRAM1$$Base;
-    volatile uint32_t ram_length = (uint32_t)&Image$$RW_IRAM1$$Length;
-    volatile uint32_t ram_limit = (uint32_t)&Image$$RW_IRAM1$$Limit;
-
-    volatile uint32_t lr_base = (uint32_t)&Load$$LR$$LR_IROM1$$Base;
-    volatile uint32_t lr_length = (uint32_t)&Load$$LR$$LR_IROM1$$Length;
-    volatile uint32_t lr_limit = (uint32_t)&Load$$LR$$LR_IROM1$$Limit;
-
-    if (load_length > (uint32_t)&Image$$RW_IRAM1$$Limit - (uint32_t)&Image$$RW_IRAM1$$Base) {
-        HardFault_Handler();
+    if ((uint32_t)&__heap_limit - (uint32_t)&__heap_base > requested_size) {
+        *base = (uint32_t*)(&__heap_base);
+        return (uint32_t)&__heap_limit - (uint32_t)&__heap_base;
     }
-
-    // 将ROM中存放的全局/静态变量初始值到RAM中。（gnu编译器一般将这部分数据放在.data段，未初始化的变量放在.bss段）
-    volatile uint8_t *src, *dst;
-    src = (uint8_t*)rom_limit;
-    dst = (uint8_t*)ram_base;
-
-    // 将rom中保存的全局/静态变量初值拷贝至data中。
-    for (uint32_t i = 0; i < load_length; ++i) {
-        *dst++ = *src++;
-    }
-    main();
+    return 0;
 }
 
 __attribute__((noinline)) void Reset_Handler(void)
 {
+    extern void __main(void);
+    __asm(".global __initial_sp\n\t"
+          ".equ __initial_sp, 0x2006F800\n\t");
+
+    __asm(".global __heap_base\n\t"
+          ".equ __heap_base, 0x2006F800\n\t");
+
+    __asm(".global __heap_limit\n\t"
+          ".equ __heap_limit, 0x2007000\n\t");
+
     SystemInit();
-    __start();
+    __main();
+    while (1) { };
 }
 
 void Null_Handler(void)

@@ -41,6 +41,8 @@ extern "C" {
 
 #include <stdint.h>
 
+extern volatile uint64_t systick_count;
+
 /* configure systick */
 void systick_config(void);
 /* delay a time in milliseconds */

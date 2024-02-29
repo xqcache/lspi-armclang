@@ -3,23 +3,24 @@
 ; *************************************************************
 
 LR_IROM1 0x08000000 0x00100000  {    ; load region size_region
-  ; 根据gd32f470zg官方手册，RAM空间为1M
-  ER_IROM1 0x08000000 0x00100000  {  ; load address = execution address
-   *.o (.isr_vectors, +First)
-   .ANY (+RO)
-   .ANY (+XO)
-  }
+    ; 根据gd32f470zg官方手册，RAM空间为1M
+    ER_IROM1 0x08000000 0x00100000  {  ; load address = execution address
+        *.o (.isr_vectors, +First)
+        .ANY (+RO)
+        .ANY (+XO)
+    }
 
-  ; 根据gd32f470zg官方手册，RAM空间为448K
-  RW_IRAM1 0x20000000 0x0006F000  {  ; RW data
-   .ANY (+RW, +ZI)
-  }
+    ; 根据gd32f470zg官方手册，RAM空间为448K
+    RW_IRAM1 0x20000000 0x00070000  {  ; RW data
+        .ANY (+RW, +ZI)
+    }
 
-  ; 栈空间
-  STACK 0x2006F800 -0x800 {
-    *.o (.stack)
-  }
-  ; 堆空间
-  HEAP +0 EMPTY 0x800 {}
+;   ; 栈空间
+;   ARM_LIB_STACK 0x2006F800 EMPTY -0x800 {
+;   }
+;
+;   ; 堆空间
+;   ARM_LIB_HEAP +0 EMPTY 0x800 {
+;   }
 }
 

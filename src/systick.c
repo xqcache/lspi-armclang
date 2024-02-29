@@ -31,11 +31,13 @@ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWIS
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
 OF SUCH DAMAGE.
 */
-
+// clang-format off
 #include "gd32f4xx.h"
 #include "systick.h"
+// clang-format on
 
 volatile static uint32_t delay;
+volatile uint64_t systick_count = 0x0c0c;
 
 /*!
     \brief    configure systick
@@ -46,9 +48,9 @@ volatile static uint32_t delay;
 void systick_config(void)
 {
     /* setup systick timer for 1000Hz interrupts */
-    if(SysTick_Config(SystemCoreClock / 1000U)) {
+    if (SysTick_Config(SystemCoreClock / 1000U)) {
         /* capture error */
-        while(1) {
+        while (1) {
         }
     }
     /* configure the systick handler priority */
@@ -65,7 +67,7 @@ void delay_1ms(uint32_t count)
 {
     delay = count;
 
-    while(0U != delay) {
+    while (0U != delay) {
     }
 }
 
@@ -77,7 +79,8 @@ void delay_1ms(uint32_t count)
 */
 void delay_decrement(void)
 {
-    if(0U != delay) {
+    if (0U != delay) {
         delay--;
     }
+    ++systick_count;
 }
