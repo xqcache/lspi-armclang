@@ -16,10 +16,10 @@ bool MPU6050::init(uint32_t slave_addr)
     write(MPU6050_RA_PWR_MGMT_1, 0x00);
     write(MPU6050_RA_PWR_MGMT_2, 0x00);
 
-    write(MPU6050_RA_INT_ENABLE, 0x00); // 关闭所有中断
-    write(MPU6050_RA_USER_CTRL, 0x00); // I2C主模式关闭
-    write(MPU6050_RA_FIFO_EN, 0x00); // 关闭FIFO
-    write(MPU6050_RA_INT_PIN_CFG, 0x80); // INT引脚低电平有效
+    write(MPU6050_RA_CONFIG, 0x03);
+
+    setAccelRange(MPU6050_ACCEL_FS_2);
+    setGyroRange(MPU6050_GYRO_FS_250);
 
     return getId() != 0;
 }
@@ -117,6 +117,34 @@ uint32_t MPU6050::read(uint32_t reg_addr, uint32_t num, uint8_t* buffer) const
     return num;
 }
 
+float MPU6050::getAccelRange() const
+{
+    return decodeAccelRange(read(MPU6050_RA_ACCEL_CONFIG));
+}
+
+bool MPU6050::setAccelRange(uint8_t range_def)
+{
+    if (range_def > 0x03) {
+        return false;
+    }
+    accel_range_ = decodeAccelRange(range_def);
+    return write(MPU6050_RA_ACCEL_CONFIG, range_def);
+}
+
+float MPU6050::getGyroRange() const
+{
+    return decodeGyroRange(read(MPU6050_RA_GYRO_CONFIG));
+}
+
+bool MPU6050::setGyroRange(uint8_t range_def)
+{
+    if (range_def > 0x03) {
+        return false;
+    }
+    gyro_range_ = decodeGyroRange(range_def);
+    return write(MPU6050_RA_GYRO_CONFIG, range_def);
+}
+
 float MPU6050::getTemperature() const
 {
     uint8_t buffer[2] = { 0 };
@@ -132,7 +160,7 @@ uint8_t MPU6050::getId() const
     return read(MPU6050_RA_WHO_AM_I);
 }
 
-bool MPU6050::getAccelValue(int16_t& ax, int16_t& ay, int16_t& az) const
+bool MPU6050::getAccelValue(float& ax, float& ay, float& az) const
 {
     uint8_t buffer[6] = { 0 };
 
@@ -140,9 +168,72 @@ bool MPU6050::getAccelValue(int16_t& ax, int16_t& ay, int16_t& az) const
         return false;
     }
 
-    ax = ((int16_t)buffer[0] << 8) | buffer[1];
-    ay = ((int16_t)buffer[2] << 8) | buffer[3];
-    az = ((int16_t)buffer[4] << 8) | buffer[5];
+    ax = (float)(((int16_t)buffer[0] << 8) | buffer[1]) / 32768.0f * accel_range_;
+    ay = (float)(((int16_t)buffer[2] << 8) | buffer[3]) / 32768.0f * accel_range_;
+    az = (float)(((int16_t)buffer[4] << 8) | buffer[5]) / 32768.0f * accel_range_;
 
     return true;
+}
+
+bool MPU6050::getGyroValue(float& gx, float& gy, float& gz) const
+{
+    uint8_t buffer[6] = { 0 };
+
+    if (read(MPU6050_RA_GYRO_XOUT_H, 6, buffer) != sizeof(buffer)) {
+        return false;
+    }
+
+    gx = (float)(((int16_t)buffer[0] << 8) | buffer[1]) / 32768.0f * gyro_range_;
+    gy = (float)(((int16_t)buffer[2] << 8) | buffer[3]) / 32768.0f * gyro_range_;
+    gz = (float)(((int16_t)buffer[4] << 8) | buffer[5]) / 32768.0f * gyro_range_;
+
+    return true;
+}
+
+bool MPU6050::getAccelRawValue(uint16_t& ax, uint16_t& ay, uint16_t& az) const
+{
+    uint8_t buffer[6] = { 0 };
+
+    if (read(MPU6050_RA_GYRO_XOUT_H, 6, buffer) != sizeof(buffer)) {
+        return false;
+    }
+
+    ax = (uint16_t)buffer[0] << 8 | buffer[1];
+    ay = (uint16_t)buffer[2] << 8 | buffer[3];
+    az = (uint16_t)buffer[4] << 8 | buffer[5];
+
+    return true;
+}
+
+float MPU6050::decodeAccelRange(uint8_t accel_cfg)
+{
+    switch (accel_cfg) {
+    case MPU6050_ACCEL_FS_2:
+        return 2.0f;
+    case MPU6050_ACCEL_FS_4:
+        return 4.0f;
+    case MPU6050_ACCEL_FS_8:
+        return 8.0f;
+    case MPU6050_ACCEL_FS_16:
+        return 16.0f;
+    default:
+        return 0.0f;
+    }
+}
+
+float MPU6050::decodeGyroRange(uint8_t gyro_cfg)
+{
+    switch (gyro_cfg) {
+    case MPU6050_GYRO_FS_250:
+        return 250.0f;
+    case MPU6050_GYRO_FS_500:
+        return 500.0f;
+    case MPU6050_GYRO_FS_1000:
+        return 1000.0f;
+    case MPU6050_GYRO_FS_2000:
+        return 2000.0f;
+    default:
+        return 0.0f;
+    }
+    return 0.0f;
 }

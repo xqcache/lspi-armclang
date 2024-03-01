@@ -121,7 +121,6 @@ uint8_t I2C::read() const
         scl(0);
         delay();
     }
-    ack();
     return value;
 }
 

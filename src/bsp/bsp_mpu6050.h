@@ -152,12 +152,27 @@ public:
     uint8_t read(uint32_t reg_addr) const;
     uint32_t read(uint32_t reg_addr, uint32_t num, uint8_t* buffer) const;
 
+    float getAccelRange() const;
+    bool setAccelRange(uint8_t range_def);
+
+    float getGyroRange() const;
+    bool setGyroRange(uint8_t range_def);
+
     float getTemperature() const;
     uint8_t getId() const;
 
-    bool getAccelValue(int16_t& ax, int16_t& ay, int16_t& az) const;
+    bool getAccelValue(float& ax, float& ay, float& az) const;
+    bool getGyroValue(float& gx, float& gy, float& gz) const;
+
+    bool getAccelRawValue(uint16_t& ax, uint16_t& ay, uint16_t& az) const;
+
+private:
+    static float decodeAccelRange(uint8_t accel_cfg);
+    static float decodeGyroRange(uint8_t gyro_cfg);
 
 private:
     I2C& i2c_;
     uint32_t addr_;
+    float accel_range_ { 2.0f };
+    float gyro_range_ { 250.0f };
 };
