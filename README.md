@@ -30,7 +30,15 @@
     /* 配置IntelliSenseEngine使用Tag Parser的方式自动补全 */
     "C_Cpp.intelliSenseEngine": "Tag Parser",
     /* 开启cmake状态栏快捷按钮 */
-    "cmake.options.statusBarVisibility": "visible"
+    "cmake.options.statusBarVisibility": "visible",
+    /* 配置cmake配置环境变量，将Keil编译器加入到PATH环境变量（也可以直接修改电脑环境变量 */
+    "cmake.configureEnvironment": {
+        "PATH": "$penv{PATH};D:\\Install\\Keil_v5\\ARM\\ARMCLANG\\bin"
+    },
+    /* 配置cmake编译环境变量，将Keil编译器加入到PATH环境变量（也可以直接修改电脑环境变量 */
+    "cmake.buildEnvironment": {
+        "PATH": "$penv{PATH};D:\\Install\\Keil_v5\\ARM\\ARMCLANG\\bin"
+    }
 }
 ```
 
